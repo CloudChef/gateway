@@ -304,7 +304,7 @@ func init() {
 }
 
 func loadConfig() {
-	CONFIG_PATH := os.Getenv("CLOUDCHEF_PROXY_CONFIG_PATH")
+	CONFIG_PATH := os.Getenv("PROXY_CONFIG_PATH")
 	log.Println(CONFIG_PATH)
 	yamlFile, err := ioutil.ReadFile(CONFIG_PATH)
 	if err != nil {
