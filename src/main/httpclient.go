@@ -3,12 +3,10 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 )
 
 type HttpClient struct {
@@ -59,9 +57,16 @@ func (httpClient *HttpClient) AddPort(name, lan string) error {
 
 func (httpClient *HttpClient) Register() (RegisterResponse, error) {
 	var registerResponse RegisterResponse
+	var lans = map[string]string{}
+	var req = map[string]interface{}{}
 	url := "/cloud-proxies/register"
-	reqBody := strings.NewReader(fmt.Sprintf("{\"clientKey\": \"%s\"}", httpClient.clientKey))
-	res, err := httpClient.SendRequest(url, "POST", reqBody)
+	for k, v := range proxyConfig.DefaultService {
+		lans[k] = v
+	}
+	req["clientKey"] = httpClient.clientKey
+	req["lans"] = lans
+	jsonReq, _ := json.Marshal(req)
+	res, err := httpClient.SendRequest(url, "POST", bytes.NewBuffer(jsonReq))
 
 	if err != nil {
 		log.Println("Register Failed...", err)

@@ -78,7 +78,6 @@ func main() {
 		InsecureSkipVerify: true,
 	}
 	listnerInfo := register()
-	addDefaultService()
 	start(listnerInfo.clientKey, listnerInfo.url, listnerInfo.sslPort, conf)
 }
 
@@ -286,7 +285,7 @@ func (pooler *ProxyConnPooler) IsActive(conn *ConnHandler) bool {
 func register() ListenerConfig {
 	for {
 		registerResponse, err := httpClient.Register()
-		if err != nil {
+		if err != nil || registerResponse.Ip == ""{
 			//log.Println("Register failed...", err)
 			time.Sleep(2000 * time.Millisecond)
 			continue
@@ -297,14 +296,6 @@ func register() ListenerConfig {
 	}
 }
 
-func addDefaultService() {
-	for k, v := range proxyConfig.DefaultService {
-		err := httpClient.AddPort(k, v)
-		if err != nil {
-			log.Printf("Add default service: %v failed", err)
-		}
-	}
-}
 
 func init() {
 	loadConfig()
