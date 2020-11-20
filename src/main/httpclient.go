@@ -6,7 +6,10 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
+	"os"
+	"strings"
 )
 
 type HttpClient struct {
@@ -59,12 +62,29 @@ func (httpClient *HttpClient) Register() (RegisterResponse, error) {
 	var registerResponse RegisterResponse
 	var lans = map[string]string{}
 	var req = map[string]interface{}{}
+	var hostName string
+	var ip []string
+	hostName,err := os.Hostname()
+	if err != nil{
+		log.Println("Get HostName failed...")
+	}
+	addrs,_ := net.InterfaceAddrs()
+	for _, address := range addrs {
+		// 检查ip地址判断是否回环地址
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				ip = append(ip,ipnet.IP.String())
+			}
+		}
+	}
 	url := "/cloud-proxies/register"
 	for k, v := range proxyConfig.DefaultService {
 		lans[k] = v
 	}
 	req["clientKey"] = httpClient.clientKey
 	req["lans"] = lans
+	req["hostName"] = hostName
+	req["ip"] = strings.Join(ip,",")
 	jsonReq, _ := json.Marshal(req)
 	res, err := httpClient.SendRequest(url, "POST", bytes.NewBuffer(jsonReq))
 
