@@ -24,7 +24,11 @@ func NewHttpClient(controllerAddress, token, clientKey string) *HttpClient {
 
 func (httpClient *HttpClient) SendRequest(url, method string, body io.Reader) (*http.Response, error) {
 	token := httpClient.token
-	url = "http://" + httpClient.controllerAddress + url
+	if strings.Contains(httpClient.controllerAddress, "http") {
+		url = httpClient.controllerAddress + url
+	} else {
+		url = "http://" + httpClient.controllerAddress + url
+	}
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return &http.Response{}, err
