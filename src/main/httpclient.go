@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"io"
 	"io/ioutil"
@@ -35,7 +36,10 @@ func (httpClient *HttpClient) SendRequest(url, method string, body io.Reader) (*
 	}
 	req.Header.Add("Content-Type", "application/json;charset=UTF-8")
 	req.Header.Add("CloudChef-Authenticate", token)
-	client := http.Client{}
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := http.Client{Transport: tr}
 	log.Println("Request url:", url)
 	log.Println("Request method:", method)
 	log.Println("Request body:", body)
@@ -68,16 +72,16 @@ func (httpClient *HttpClient) Register() (RegisterResponse, error) {
 	var req = map[string]interface{}{}
 	var hostName string
 	var ip []string
-	hostName,err := os.Hostname()
-	if err != nil{
+	hostName, err := os.Hostname()
+	if err != nil {
 		log.Println("Get HostName failed...")
 	}
-	addrs,_ := net.InterfaceAddrs()
+	addrs, _ := net.InterfaceAddrs()
 	for _, address := range addrs {
 		// 检查ip地址判断是否回环地址
 		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
-				ip = append(ip,ipnet.IP.String())
+				ip = append(ip, ipnet.IP.String())
 			}
 		}
 	}
@@ -88,7 +92,7 @@ func (httpClient *HttpClient) Register() (RegisterResponse, error) {
 	req["clientKey"] = httpClient.clientKey
 	req["lans"] = lans
 	req["hostName"] = hostName
-	req["ip"] = strings.Join(ip,",")
+	req["ip"] = strings.Join(ip, ",")
 	jsonReq, _ := json.Marshal(req)
 	res, err := httpClient.SendRequest(url, "POST", bytes.NewBuffer(jsonReq))
 
