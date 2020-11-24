@@ -41,17 +41,17 @@ func (connHandler *ConnHandler) Listen(conn net.Conn, messageHandler interface{}
 	connHandler.Active = true
 	connHandler.ReadTime = time.Now().Unix()
 	connHandler.WriteTime = connHandler.ReadTime
-	connHandler.messageHandler.ConnSuccess(connHandler)   // messageHandler为LPMessageHandler时,RealServerHandler时
+	connHandler.messageHandler.ConnSuccess(connHandler) // messageHandler为LPMessageHandler时,RealServerHandler时
 	for {
 		buf := make([]byte, 1024*8)
 		// 一个数据包大小不能超过2M
 		if connHandler.readBuf != nil && len(connHandler.readBuf) > 1024*1024*2 {
 			connHandler.conn.Close()
 		}
-		n, err := connHandler.conn.Read(buf)  // Read没有设置超时时间，是阻塞的
+		n, err := connHandler.conn.Read(buf) // Read没有设置超时时间，是阻塞的
 		if err != nil || n == 0 {
+			log.Printf("Disconnect [%s] to [%s].Error Message:%s", conn.LocalAddr(), conn.RemoteAddr(), err)
 			connHandler.Active = false
-			log.Println(err)
 			connHandler.messageHandler.ConnError(connHandler)
 			break
 		}
