@@ -74,6 +74,7 @@ type ProxyConnPooler struct {
 }
 
 func main() {
+	log.Printf("Current Version: %s", VERSION)
 	log.Println("smartcmp-proxy-agent - help you expose a local server behind a NAT or firewall to the internet")
 	var conf *tls.Config
 	conf = &tls.Config{
