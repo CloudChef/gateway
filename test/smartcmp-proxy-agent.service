@@ -1,0 +1,14 @@
+[Unit]
+Description=SmartCMP Proxy Service
+
+[Service]
+Restart=always
+RestartSec=10s
+
+EnvironmentFile=-/etc/sysconfig/smartcmp-proxy-agent.env
+User=proxy
+Group=proxy
+ExecStart=/usr/local/src/smartcmp-gateway/proxy/smartcmp-proxy-agent
+
+[Install]
+WantedBy=multi-user.target

@@ -320,7 +320,7 @@ func loadConfig() {
 }
 
 func setLogger() {
-	logFile, err := os.OpenFile(proxyConfig.LogPath+"cloudchef-proxy.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile(proxyConfig.LogPath+"smartcmp-proxy-agent.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)
 	}
