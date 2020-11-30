@@ -93,6 +93,7 @@ func (httpClient *HttpClient) Register() (RegisterResponse, error) {
 	req["lans"] = lans
 	req["hostName"] = hostName
 	req["ip"] = strings.Join(ip, ",")
+	req["version"] = VERSION
 	jsonReq, _ := json.Marshal(req)
 	res, err := httpClient.SendRequest(url, "POST", bytes.NewBuffer(jsonReq))
 

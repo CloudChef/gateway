@@ -46,7 +46,9 @@ const (
 	//心跳周期，服务器端空闲连接如果60秒没有数据上报就会关闭连接
 	HEARTBEAT_INTERVAL = 30
 
-	TOKEN = ""
+	TOKEN     = ""
+	VERSION   = "6.2.0"
+	POOL_SIZE = 1000
 )
 
 var proxyConfig *ProxyConfig
@@ -82,7 +84,7 @@ func main() {
 }
 
 func start(key string, ip string, port int, conf *tls.Config) {
-	connPool := &ConnHandlerPool{Size: 100, Pooler: &ProxyConnPooler{addr: ip + ":" + strconv.Itoa(port), conf: conf}}
+	connPool := &ConnHandlerPool{Size: POOL_SIZE, Pooler: &ProxyConnPooler{addr: ip + ":" + strconv.Itoa(port), conf: conf}}
 	connPool.Init()
 	connHandler := &ConnHandler{}
 	for {
@@ -285,7 +287,7 @@ func (pooler *ProxyConnPooler) IsActive(conn *ConnHandler) bool {
 func register() ListenerConfig {
 	for {
 		registerResponse, err := httpClient.Register()
-		if err != nil || registerResponse.Ip == ""{
+		if err != nil || registerResponse.Ip == "" {
 			//log.Println("Register failed...", err)
 			time.Sleep(2000 * time.Millisecond)
 			continue
@@ -295,7 +297,6 @@ func register() ListenerConfig {
 		return listenerConfig
 	}
 }
-
 
 func init() {
 	loadConfig()
