@@ -3,10 +3,10 @@ package main
 import (
 	"crypto/tls"
 	"encoding/binary"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
-	"log"
 	"net"
 	"os"
 	"runtime/debug"
@@ -74,8 +74,8 @@ type ProxyConnPooler struct {
 }
 
 func main() {
-	log.Printf("Current Version: %s", VERSION)
-	log.Println("smartcmp-proxy-agent - help you expose a local server behind a NAT or firewall to the internet")
+	log.Infof("Current Version: %s", VERSION)
+	log.Info("smartcmp-proxy-agent - help you expose a local server behind a NAT or firewall to the internet")
 	var conf *tls.Config
 	conf = &tls.Config{
 		InsecureSkipVerify: true,
@@ -90,14 +90,14 @@ func start(key string, ip string, port int, conf *tls.Config) {
 	connHandler := &ConnHandler{}
 	for {
 		//cmd connection
-		log.Println(key, ip, port)
+		log.Info(key, ip, port)
 		conn := connect(key, ip, port, conf)
 		connHandler.conn = conn
 		messageHandler := LPMessageHandler{connPool: connPool}
 		messageHandler.connHandler = connHandler
 		messageHandler.clientKey = key
 		messageHandler.startHeartbeat()
-		log.Println("start listen cmd message:", messageHandler)
+		log.Info("start listen cmd message:", messageHandler)
 		connHandler.Listen(conn, &messageHandler)
 	}
 }
@@ -114,11 +114,11 @@ func connect(key string, ip string, port int, conf *tls.Config) net.Conn {
 			conn, err = net.Dial("tcp", ip+":"+p)
 		}
 		if err != nil {
-			log.Println("In func connect,error dialing", err.Error(), err_count)
+			log.Fatal("In func connect,error dialing", err.Error(), err_count)
 			err_count += 1
 			time.Sleep(time.Second * 5)
 			if err_count > 3 {
-				syscall.Exit(0)
+				syscall.Exit(1)
 			}
 		} else {
 			return conn
@@ -168,12 +168,12 @@ func (messageHandler *LPMessageHandler) MessageReceived(connHandler *ConnHandler
 	switch message.Type {
 	case TYPE_CONNECT:
 		go func() {
-			log.Println("received connect message:", message.Uri, "=>", string(message.Data))
+			log.Info("received connect message:", message.Uri, "=>", string(message.Data))
 			addr := string(message.Data)
 			realServerMessageHandler := &RealServerMessageHandler{LpConnHandler: connHandler, ConnPool: messageHandler.connPool, UserId: message.Uri, ClientKey: messageHandler.clientKey}
 			conn, err := net.Dial("tcp", addr)
 			if err != nil {
-				log.Println("connect realserver failed", err)
+				log.Warn("connect realserver failed", err)
 				realServerMessageHandler.ConnFailed()
 			} else {
 				connHandler := &ConnHandler{}
@@ -198,7 +198,7 @@ func (messageHandler *LPMessageHandler) MessageReceived(connHandler *ConnHandler
 }
 
 func (messageHandler *LPMessageHandler) ConnSuccess(connHandler *ConnHandler) {
-	log.Println("connSuccess, clientkey:", messageHandler.clientKey)
+	log.Info("connSuccess, clientkey:", messageHandler.clientKey)
 	if messageHandler.clientKey != "" {
 		msg := Message{Type: C_TYPE_AUTH}
 		msg.Uri = messageHandler.clientKey
@@ -207,7 +207,7 @@ func (messageHandler *LPMessageHandler) ConnSuccess(connHandler *ConnHandler) {
 }
 
 func (messageHandler *LPMessageHandler) ConnError(connHandler *ConnHandler) {
-	log.Println("connError:", connHandler)
+	log.Warn("connError:", connHandler)
 	if messageHandler.die != nil {
 		close(messageHandler.die)
 	}
@@ -224,12 +224,12 @@ func (messageHandler *LPMessageHandler) ConnError(connHandler *ConnHandler) {
 }
 
 func (messageHandler *LPMessageHandler) startHeartbeat() {
-	log.Println("start heartbeat:", messageHandler.connHandler)
+	log.Info("start heartbeat:", messageHandler.connHandler)
 	messageHandler.die = make(chan struct{})
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
-				log.Printf("run time panic: %v", err)
+				log.Panic("run time panic: %v", err)
 				debug.PrintStack()
 			}
 		}()
@@ -237,7 +237,7 @@ func (messageHandler *LPMessageHandler) startHeartbeat() {
 			select {
 			case <-time.After(time.Second * HEARTBEAT_INTERVAL):
 				if time.Now().Unix()-messageHandler.connHandler.ReadTime >= 2*HEARTBEAT_INTERVAL {
-					log.Println("proxy connection timeout:", messageHandler.connHandler, time.Now().Unix()-messageHandler.connHandler.ReadTime)
+					log.Error("proxy connection timeout:", messageHandler.connHandler, time.Now().Unix()-messageHandler.connHandler.ReadTime)
 					messageHandler.connHandler.conn.Close()
 					return
 				}
@@ -260,7 +260,7 @@ func (pooler *ProxyConnPooler) Create(pool *ConnHandlerPool) (*ConnHandler, erro
 	}
 
 	if err != nil {
-		log.Println("Error dialing", err.Error())
+		log.Error("Error dialing", err.Error())
 		return nil, err
 	} else {
 		messageHandler := LPMessageHandler{connPool: pool}
@@ -289,12 +289,10 @@ func register() ListenerConfig {
 	for {
 		registerResponse, err := httpClient.Register()
 		if err != nil || registerResponse.Ip == "" {
-			//log.Println("Register failed...", err)
 			time.Sleep(2000 * time.Millisecond)
 			continue
 		}
 		listenerConfig := ListenerConfig{registerResponse.Ip, registerResponse.Port, httpClient.clientKey, registerResponse.SslPort}
-		//log.Println("Get listenner info successfully:", listenerConfig)
 		return listenerConfig
 	}
 }
@@ -307,15 +305,15 @@ func init() {
 
 func loadConfig() {
 	CONFIG_PATH := os.Getenv("PROXY_CONFIG_PATH")
-	log.Println(CONFIG_PATH)
+	log.Debug(CONFIG_PATH)
 	yamlFile, err := ioutil.ReadFile(CONFIG_PATH)
 	if err != nil {
-		log.Println("Config not exists:", err)
+		log.Fatal("Config not exists:", err)
 		syscall.Exit(1)
 	}
 	_ = yaml.Unmarshal(yamlFile, &proxyConfig)
 	if err != nil {
-		log.Println("Parse config failed:", err)
+		log.Fatal("Parse config failed:", err)
 		syscall.Exit(1)
 	}
 }
@@ -327,4 +325,5 @@ func setLogger() {
 	}
 	mw := io.MultiWriter(logFile, os.Stdout)
 	log.SetOutput(mw)
+	log.SetFormatter(&log.TextFormatter{})
 }

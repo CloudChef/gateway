@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -40,11 +40,11 @@ func (httpClient *HttpClient) SendRequest(url, method string, body io.Reader) (*
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := http.Client{Transport: tr}
-	log.Println("Request url:", url)
-	log.Println("Request method:", method)
-	log.Println("Request body:", body)
+	log.Info("Request url:", url)
+	log.Info("Request method:", method)
+	log.Info("Request body:", body)
 	res, err := client.Do(req)
-	log.Println("Response:", res)
+	log.Info("Response:", res)
 	if err != nil {
 		return res, err
 	}
@@ -74,7 +74,7 @@ func (httpClient *HttpClient) Register() (RegisterResponse, error) {
 	var ip []string
 	hostName, err := os.Hostname()
 	if err != nil {
-		log.Println("Get HostName failed...")
+		log.Warn("Get HostName failed...")
 	}
 	addrs, _ := net.InterfaceAddrs()
 	for _, address := range addrs {
@@ -98,14 +98,14 @@ func (httpClient *HttpClient) Register() (RegisterResponse, error) {
 	res, err := httpClient.SendRequest(url, "POST", bytes.NewBuffer(jsonReq))
 
 	if err != nil {
-		log.Println("Register Failed...", err)
+		log.Error("Register Failed...", err)
 		return registerResponse, err
 	}
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return registerResponse, err
 	}
-	log.Printf("Get Response from controller: %v", string(resBody))
+	log.Info("Get Response from controller: %v", string(resBody))
 	err = json.Unmarshal(resBody, &registerResponse)
 	if err != nil {
 		return registerResponse, err

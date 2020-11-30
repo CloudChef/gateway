@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net"
 	"runtime/debug"
 	"time"
@@ -28,7 +28,7 @@ type ConnHandler struct {
 func (connHandler *ConnHandler) Listen(conn net.Conn, messageHandler interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Printf("run time panic: %v", err)
+			log.Panicf("run time panic: %v", err)
 			debug.PrintStack()
 			connHandler.messageHandler.ConnError(connHandler)
 		}
@@ -50,7 +50,7 @@ func (connHandler *ConnHandler) Listen(conn net.Conn, messageHandler interface{}
 		}
 		n, err := connHandler.conn.Read(buf) // Read没有设置超时时间，是阻塞的
 		if err != nil || n == 0 {
-			log.Printf("Disconnect [%s] to [%s].Error Message:%s", conn.LocalAddr(), conn.RemoteAddr(), err)
+			log.Infof("Disconnect [%s] to [%s].Error Message:%s", conn.LocalAddr(), conn.RemoteAddr(), err)
 			connHandler.Active = false
 			connHandler.messageHandler.ConnError(connHandler)
 			break
