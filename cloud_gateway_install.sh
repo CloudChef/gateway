@@ -71,7 +71,7 @@ ExecStart=${SERVER_PATH}/consul/consul agent \
     -server -ui -client=0.0.0.0 \
     -bind=$IP \
     -data-dir=${SERVER_PATH}/consul/data -config-dir=${SERVER_PATH}/consul/consul.d -bootstrap-expect=1
-ExecStop=/bin/kill -15 $MAINPID
+ExecStop=/bin/kill -15 \$MAINPID
 Type=simple
 [Install]
 WantedBy=multi-user.target
@@ -87,7 +87,8 @@ After=network.target
 [Service]
 EnvironmentFile=-${SERVER_PATH}/guacd/guacd_config
 Environment=HOME=${SERVER_PATH}/guacd/data
-ExecStart=/usr/local/sbin/guacd -f $OPTS
+ExecStart=/usr/local/sbin/guacd -f \$OPTS
+ExecStop=/bin/kill -15 \$MAINPID
 Restart=on-failure
 User=gateway
 Group=gateway
@@ -127,6 +128,7 @@ EnvironmentFile=-${SERVER_PATH}/proxy/smartcmp-proxy-agent.env
 User=gateway
 Group=gateway
 ExecStart=${SERVER_PATH}/proxy/smartcmp-proxy-agent
+ExecStop=/bin/kill -15 \$MAINPID
 
 LimitNOFILE=102400
 
