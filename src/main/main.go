@@ -46,9 +46,10 @@ const (
 	//心跳周期，服务器端空闲连接如果60秒没有数据上报就会关闭连接
 	HEARTBEAT_INTERVAL = 30
 
-	TOKEN     = ""
-	VERSION   = "6.2.0"
-	POOL_SIZE = 1000
+	TOKEN             = ""
+	VERSION           = "6.2.0"
+	POOL_SIZE         = 1000
+	REGISTER_INTERNAL = 15 // 注册失败重试时的重试间隔(s)
 )
 
 var proxyConfig *ProxyConfig
@@ -289,7 +290,7 @@ func register() ListenerConfig {
 	for {
 		registerResponse, err := httpClient.Register()
 		if err != nil || registerResponse.Ip == "" {
-			time.Sleep(2000 * time.Millisecond)
+			time.Sleep(REGISTER_INTERNAL * 1000 * time.Millisecond)
 			continue
 		}
 		listenerConfig := ListenerConfig{registerResponse.Ip, registerResponse.Port, httpClient.clientKey, registerResponse.SslPort}
