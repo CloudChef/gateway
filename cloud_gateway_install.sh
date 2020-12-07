@@ -46,7 +46,7 @@ ExecStart=${SERVER_PATH}/prometheus/prometheus \
 --storage.tsdb.path ${SERVER_PATH}/prometheus/data/ \
 --web.console.templates=${SERVER_PATH}/prometheus/consoles \
 --web.console.libraries=${SERVER_PATH}/prometheus/console_libraries
-ExecStop=/bin/kill -15 $MAINPID
+ExecStop=/bin/kill -15 \$MAINPID
 
 LimitNOFILE=102400
 

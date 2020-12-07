@@ -105,7 +105,7 @@ func (httpClient *HttpClient) Register() (RegisterResponse, error) {
 	if err != nil {
 		return registerResponse, err
 	}
-	log.Info("Get Response from controller: %v", string(resBody))
+	log.Info("Get Response from controller: ", string(resBody))
 	err = json.Unmarshal(resBody, &registerResponse)
 	if err != nil {
 		return registerResponse, err
