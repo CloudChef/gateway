@@ -178,7 +178,7 @@ function start_service() {
     for service_name in $SERVICE_LIST
     do
         sudo systemctl enable $service_name
-        sudo systemctl start $service_name
+        sudo systemctl restart $service_name
         sudo systemctl status $service_name
     done
 }
