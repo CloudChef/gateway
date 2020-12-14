@@ -28,6 +28,7 @@ func (messageHandler *RealServerMessageHandler) MessageReceived(connHandler *Con
 		data := msg.([]byte)
 		message := Message{Type: P_TYPE_TRANSFER}
 		message.Data = data
+		log.Infof("Transfer [%s] to [%s].", connHandler.NextConn.conn.LocalAddr(), connHandler.NextConn.conn.RemoteAddr())
 		connHandler.NextConn.Write(message)
 	}
 }

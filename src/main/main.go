@@ -169,14 +169,15 @@ func (messageHandler *LPMessageHandler) MessageReceived(connHandler *ConnHandler
 	switch message.Type {
 	case TYPE_CONNECT:
 		go func() {
-			log.Info("received connect message:", message.Uri, "=>", string(message.Data))
+			log.Info("Received connect message:", message.Uri, "=>", string(message.Data))
 			addr := string(message.Data)
 			realServerMessageHandler := &RealServerMessageHandler{LpConnHandler: connHandler, ConnPool: messageHandler.connPool, UserId: message.Uri, ClientKey: messageHandler.clientKey}
 			conn, err := net.Dial("tcp", addr)
 			if err != nil {
-				log.Warn("connect realserver failed", err)
+				log.Warn("Connect realserver failed", err)
 				realServerMessageHandler.ConnFailed()
 			} else {
+				log.Infof("Connect [%s] to [%s].", conn.LocalAddr(), conn.RemoteAddr())
 				connHandler := &ConnHandler{}
 				connHandler.conn = conn
 				connHandler.Listen(conn, realServerMessageHandler)
@@ -184,6 +185,7 @@ func (messageHandler *LPMessageHandler) MessageReceived(connHandler *ConnHandler
 		}()
 	case P_TYPE_TRANSFER:
 		if connHandler.NextConn != nil {
+			log.Infof("Transfer [%s] to [%s].", connHandler.NextConn.conn.LocalAddr(), connHandler.NextConn.conn.RemoteAddr())
 			connHandler.NextConn.Write(message.Data)
 		}
 	case TYPE_DISCONNECT:
