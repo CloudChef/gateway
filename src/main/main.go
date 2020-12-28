@@ -81,26 +81,27 @@ func main() {
 	conf = &tls.Config{
 		InsecureSkipVerify: true,
 	}
-	listnerInfo := register()
-	start(listnerInfo.clientKey, listnerInfo.url, listnerInfo.sslPort, conf)
+	for {
+		listenerInfo := register()
+		start(listenerInfo.clientKey, listenerInfo.url, listenerInfo.sslPort, conf)
+	}
+
 }
 
 func start(key string, ip string, port int, conf *tls.Config) {
 	connPool := &ConnHandlerPool{Size: POOL_SIZE, Pooler: &ProxyConnPooler{addr: ip + ":" + strconv.Itoa(port), conf: conf}}
 	connPool.Init()
 	connHandler := &ConnHandler{}
-	for {
-		//cmd connection
-		log.Info(key, ip, port)
-		conn := connect(key, ip, port, conf)
-		connHandler.conn = conn
-		messageHandler := LPMessageHandler{connPool: connPool}
-		messageHandler.connHandler = connHandler
-		messageHandler.clientKey = key
-		messageHandler.startHeartbeat()
-		log.Info("start listen cmd message:", messageHandler)
-		connHandler.Listen(conn, &messageHandler)
-	}
+	//cmd connection
+	log.Info(key, ip, port)
+	conn := connect(key, ip, port, conf)
+	connHandler.conn = conn
+	messageHandler := LPMessageHandler{connPool: connPool}
+	messageHandler.connHandler = connHandler
+	messageHandler.clientKey = key
+	messageHandler.startHeartbeat()
+	log.Info("start listen cmd message:", messageHandler)
+	connHandler.Listen(conn, &messageHandler)
 }
 
 func connect(key string, ip string, port int, conf *tls.Config) net.Conn {
