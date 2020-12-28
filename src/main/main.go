@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"encoding/binary"
+	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io"
@@ -34,6 +35,9 @@ const (
 	/* 用户与代理服务器以及代理客户端与真实服务器连接是否可写状态同步 */
 	C_TYPE_WRITE_CONTROL = 0x06
 
+	/* 执行脚本*/
+	TYPE_EXECUTION = 0x66
+
 	//协议各字段长度
 	LEN_SIZE = 4
 
@@ -50,6 +54,7 @@ const (
 	VERSION           = "6.2.0"
 	POOL_SIZE         = 1000
 	REGISTER_INTERNAL = 15 // 注册失败重试时的重试间隔(s)
+	SCRIPT_PATH       = "/tmp/scripts"
 )
 
 var proxyConfig *ProxyConfig
@@ -85,14 +90,12 @@ func main() {
 		listenerInfo := register()
 		start(listenerInfo.clientKey, listenerInfo.url, listenerInfo.sslPort, conf)
 	}
-
 }
 
 func start(key string, ip string, port int, conf *tls.Config) {
 	connPool := &ConnHandlerPool{Size: POOL_SIZE, Pooler: &ProxyConnPooler{addr: ip + ":" + strconv.Itoa(port), conf: conf}}
 	connPool.Init()
 	connHandler := &ConnHandler{}
-	//cmd connection
 	log.Info(key, ip, port)
 	conn := connect(key, ip, port, conf)
 	connHandler.conn = conn
@@ -116,7 +119,7 @@ func connect(key string, ip string, port int, conf *tls.Config) net.Conn {
 			conn, err = net.Dial("tcp", ip+":"+p)
 		}
 		if err != nil {
-			log.Fatal("In func connect,error dialing", err.Error(), err_count)
+			log.Fatalf("Connect to listener failed: %s...Try %d time(s)", err.Error(), err_count)
 			err_count += 1
 			time.Sleep(time.Second * 5)
 			if err_count > 3 {
@@ -198,6 +201,27 @@ func (messageHandler *LPMessageHandler) MessageReceived(connHandler *ConnHandler
 		if messageHandler.clientKey == "" {
 			messageHandler.connPool.Return(connHandler)
 		}
+	case TYPE_EXECUTION:
+		go func() {
+			tmpHandler, _ := messageHandler.connPool.Get()
+			var scriptHandler ScriptHandler
+			_ = json.Unmarshal(message.Data, &scriptHandler)
+			log.Info("Received script execution:", scriptHandler.ScriptName)
+			out, err := scriptHandler.Execute()
+			response := map[string]interface{}{}
+			if err != nil {
+				response["status"] = "failed"
+				response["stdErr"] = err.Error()
+				log.Warn(err.Error())
+			}
+			response["status"] = "success"
+			response["stdOut"] = string(out)
+			log.Info(string(out))
+			binaryResponse, _ := json.Marshal(response)
+			message.Data = binaryResponse
+			tmpHandler.Write(message)
+			messageHandler.connPool.Return(tmpHandler)
+		}()
 	}
 }
 

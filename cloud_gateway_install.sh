@@ -171,6 +171,9 @@ function make_file() {
 function create_user() {
     sudo useradd gateway
 }
+function set_capabilities() {
+    sudo setcap cap_net_admin,cap_net_raw+eip /usr/bin/python2.7
+}
 
 function start_service() {
     SERVICE_LIST="consul prometheus guacd smartcmp-proxy-agent"
@@ -201,6 +204,7 @@ function main() {
     ADDRESS=$1
     KEY=$2
     USER_BASE_PAATH=$3
+    set_capabilities
     create_user
     make_file $ADDRESS $KEY $USER_BASE_PATH
     start_service

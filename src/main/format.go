@@ -23,6 +23,6 @@ type ProxyConfig struct {
 type AddPortRequest struct {
 	Name      string `json:"name"`
 	Protocol  string `json:"protocol"`
-	Lan    string `json:"lan"`
+	Lan       string `json:"lan"`
 	ClientKey string `json:"clientKey"`
 }

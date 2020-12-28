@@ -19,7 +19,8 @@ VERSION=`date -u +%Y%m%d`
 LDFLAGS="-X main.VERSION=$VERSION -s -w"
 GCFLAGS=""
 
-OSES=(linux darwin windows freebsd)
+#OSES=(linux darwin windows freebsd)
+OSES=(linux)
 ARCHS=(amd64 386)
 for os in ${OSES[@]}; do
 	for arch in ${ARCHS[@]}; do
