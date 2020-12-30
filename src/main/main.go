@@ -54,7 +54,7 @@ const (
 	VERSION           = "6.2.0"
 	POOL_SIZE         = 1000
 	REGISTER_INTERNAL = 15 // 注册失败重试时的重试间隔(s)
-	SCRIPT_PATH       = "/tmp/scripts"
+	SCRIPT_PATH       = "/tmp/"
 )
 
 var proxyConfig *ProxyConfig

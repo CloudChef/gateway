@@ -34,7 +34,6 @@ func (scriptHandler *ScriptHandler) Execute() ([]byte, error) {
 }
 
 func (scriptHandler *ScriptHandler) Exist() bool {
-	_ = os.Mkdir(SCRIPT_PATH, 0x666)
 	_, err := os.Stat(path.Join(SCRIPT_PATH, scriptHandler.ScriptName))
 	if err == nil {
 		scriptHandler.ScriptPath = path.Join(SCRIPT_PATH, scriptHandler.ScriptName)
