@@ -105,6 +105,9 @@ EOF
     sudo cat > $SERVER_PATH/proxy/smartcmp-proxy-agent.config <<EOF
 CONTROLLER_ADDRESS: "${CONTROLLER_ADDRESS}"
 CLIENT_KEY: "${CLIENT_KEY}"
+VERSION:{{VERSION}}
+BUILD_ID:{{BUILD_ID}}
+BUILD_REF:{{BUILD_REF}}
 LOG_PATH: "${SERVER_PATH}/proxy/"
 DEFAULT_SERVICE:
   PROMETHEUS: "127.0.0.1:9090"
@@ -172,7 +175,7 @@ function create_user() {
     sudo useradd gateway
 }
 function set_capabilities() {
-    sudo setcap cap_net_admin,cap_net_raw+eip /usr/bin/python2.7
+    sudo setcap cap_net_admin,cap_net_raw+eip ${BASE_PATH}/proxy/smartcmp-proxy-agent
 }
 
 function start_service() {
@@ -208,7 +211,6 @@ function main() {
     create_user
     make_file $ADDRESS $KEY $USER_BASE_PATH
     start_service
-    open_firewall_port
 }
 
 while true; do

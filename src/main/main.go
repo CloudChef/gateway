@@ -51,7 +51,6 @@ const (
 	HEARTBEAT_INTERVAL = 30
 
 	TOKEN             = ""
-	VERSION           = "6.2.0"
 	POOL_SIZE         = 1000
 	REGISTER_INTERNAL = 15 // 注册失败重试时的重试间隔(s)
 	SCRIPT_PATH       = "/tmp/"
@@ -80,8 +79,8 @@ type ProxyConnPooler struct {
 }
 
 func main() {
-	log.Infof("Current Version: %s", VERSION)
-	log.Info("smartcmp-proxy-agent - help you expose a local server behind a NAT or firewall to the internet")
+	log.Info("Proxy-agent - help you expose a local server behind a NAT or firewall to the internet")
+	log.Infof("Current Version: %s-%s", proxyConfig.VERSION, proxyConfig.BUILD_ID)
 	var conf *tls.Config
 	conf = &tls.Config{
 		InsecureSkipVerify: true,
@@ -103,7 +102,7 @@ func start(key string, ip string, port int, conf *tls.Config) {
 	messageHandler.connHandler = connHandler
 	messageHandler.clientKey = key
 	messageHandler.startHeartbeat()
-	log.Info("start listen cmd message:", messageHandler)
+	log.Info("Start listen cmd message:", messageHandler)
 	connHandler.Listen(conn, &messageHandler)
 }
 

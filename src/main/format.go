@@ -18,6 +18,9 @@ type ProxyConfig struct {
 	ClientKey         string            `yaml:"CLIENT_KEY"`
 	LogPath           string            `yaml:"LOG_PATH"`
 	DefaultService    map[string]string `yaml:"DEFAULT_SERVICE"`
+	VERSION           string            `yaml:"VERSION"`
+	BUILD_ID          string            `yaml:"BUILD_ID"`
+	BUILD_REF         string            `yaml:"BUILD_REF"`
 }
 
 type AddPortRequest struct {
