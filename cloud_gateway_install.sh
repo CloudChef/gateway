@@ -175,7 +175,7 @@ function create_user() {
     sudo useradd gateway
 }
 function set_capabilities() {
-    sudo setcap cap_net_admin,cap_net_raw+eip ${BASE_PATH}/proxy/smartcmp-proxy-agent
+    sudo setcap cap_net_admin,cap_net_raw+eip /usr/bin/python2.7
 }
 
 function start_service() {
@@ -207,10 +207,10 @@ function main() {
     ADDRESS=$1
     KEY=$2
     USER_BASE_PAATH=$3
-    set_capabilities
     create_user
     make_file $ADDRESS $KEY $USER_BASE_PATH
     start_service
+    set_capabilities
 }
 
 while true; do
