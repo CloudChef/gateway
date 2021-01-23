@@ -44,6 +44,7 @@ Type=simple
 ExecStart=${SERVER_PATH}/prometheus/prometheus \
 --config.file ${SERVER_PATH}/prometheus/prometheus.yml \
 --storage.tsdb.path ${SERVER_PATH}/prometheus/data/ \
+--storage.tsdb.retention=1d \
 --web.console.templates=${SERVER_PATH}/prometheus/consoles \
 --web.console.libraries=${SERVER_PATH}/prometheus/console_libraries
 ExecStop=/bin/kill -15 \$MAINPID
