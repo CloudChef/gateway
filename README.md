@@ -1,1 +1,2 @@
 # Gateway
+使用SmartCMP的CloudGateway，打破网络束缚，帮助用户随时随地，安全高效的管理内网资源并能实现多个数据中心、多个公有云、不同VPC内的资源统一监控和管理。现在我们就来看看怎么部署CloudGateway。
