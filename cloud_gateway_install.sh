@@ -74,6 +74,7 @@ ExecStart=${SERVER_PATH}/consul/consul agent \
     -data-dir=${SERVER_PATH}/consul/data -config-dir=${SERVER_PATH}/consul/consul.d -bootstrap-expect=1
 ExecStop=/bin/kill -15 \$MAINPID
 Type=simple
+LimitNOFILE=102400
 [Install]
 WantedBy=multi-user.target
 EOF
