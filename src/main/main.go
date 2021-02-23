@@ -212,8 +212,9 @@ func (messageHandler *LPMessageHandler) MessageReceived(connHandler *ConnHandler
 				response["status"] = "failed"
 				response["stdErr"] = err.Error()
 				log.Warn(err.Error())
+			}else{
+				response["status"] = "success"
 			}
-			response["status"] = "success"
 			response["stdOut"] = string(out)
 			log.Info(string(out))
 			binaryResponse, _ := json.Marshal(response)
