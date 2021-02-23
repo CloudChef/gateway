@@ -188,7 +188,7 @@ func (messageHandler *LPMessageHandler) MessageReceived(connHandler *ConnHandler
 		}()
 	case P_TYPE_TRANSFER:
 		if connHandler.NextConn != nil {
-			log.Infof("Transfer [%s] to [%s].", connHandler.NextConn.conn.LocalAddr(), connHandler.NextConn.conn.RemoteAddr())
+			log.Debugf("Transfer [%s] to [%s].", connHandler.NextConn.conn.LocalAddr(), connHandler.NextConn.conn.RemoteAddr())
 			connHandler.NextConn.Write(message.Data)
 		}
 	case TYPE_DISCONNECT:
@@ -350,7 +350,12 @@ func setLogger() {
 	if err != nil {
 		panic(err)
 	}
-	mw := io.MultiWriter(logFile, os.Stdout)
+	mw := io.MultiWriter(logFile)
 	log.SetOutput(mw)
+	if proxyConfig.LogLevel == "debug" {
+		log.SetLevel(log.DebugLevel)
+	} else {
+		log.SetLevel(log.InfoLevel)
+	}
 	log.SetFormatter(&log.TextFormatter{})
 }
