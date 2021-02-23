@@ -21,6 +21,7 @@ type ProxyConfig struct {
 	VERSION           string            `yaml:"VERSION"`
 	BUILD_ID          string            `yaml:"BUILD_ID"`
 	BUILD_REF         string            `yaml:"BUILD_REF"`
+	LogLevel          string            `yaml:"LOGLEVEL"`
 }
 
 type AddPortRequest struct {
