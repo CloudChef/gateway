@@ -1,0 +1,5 @@
+{
+  "limits": {
+    "http_max_conns_per_client": 5000
+  }
+}
