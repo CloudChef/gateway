@@ -1,0 +1,153 @@
+# my global config
+global:
+  scrape_interval:     60s # 设置查询时间间隔
+  evaluation_interval: 60s # 设置评估时间间隔
+  scrape_timeout:      30s # 设置查询超时
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'codelab-monitor'
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "rules/*.rules"
+  # - "first.rules"
+  # - "second.rules"
+# A scrape configuration containing exactly one endpoint to scrape:
+scrape_configs:
+  - job_name: 'smartcmp-management'
+    scrape_interval: 60s
+    #读取consul的服务作为自身的查询目标
+    # consul服务所在的IP地址
+    consul_sd_configs:
+      - {datacenter: dc1, server: '127.0.0.1:8500'}
+    #替换label配置
+    relabel_configs:
+      - source_labels: [__meta_consul_service]
+        # drop consul self service
+        regex:         '^consul$'
+        action: drop
+      #原label
+      - source_labels: ['__address__']
+        #替换的label
+        target_label:  __address__
+        #取出设置的consul tags
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){0}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){1}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){2}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){3}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){4}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){5}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){6}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){7}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){8}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){9}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){10}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){11}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){12}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){13}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){14}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){15}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){16}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){17}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){18}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){19}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){20}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){21}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){22}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){23}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){24}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){25}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){26}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){27}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){28}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'
+      - source_labels: [__meta_consul_tags]
+        regex: ',(?:[^,]+,){29}([^:]+):([^,]+),.*'
+        replacement: '${2}'
+        target_label: '${1}'

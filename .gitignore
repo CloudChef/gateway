@@ -1,0 +1,5 @@
+.idea/
+src/gopkg.in/
+*tar.gz
+*exe
+*log
